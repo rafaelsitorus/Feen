@@ -2,7 +2,7 @@
 //  FeenApp.swift
 //  Feen
 //
-//  Created by Pangihutan Sitorus on 10/03/26.
+//  Created by Pangihutan Sitorus on 11/03/26.
 //
 
 import SwiftUI
@@ -11,7 +11,7 @@ import SwiftUI
 struct FeenApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            CameraScreen()
         }
     }
 }
