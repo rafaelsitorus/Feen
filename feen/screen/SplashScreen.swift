@@ -40,8 +40,8 @@ struct SplashScreen: View {
                         opacity = 1.0
                     }
                     // After 1.5 seconds, switch to main content
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                        withAnimation(.easeOut(duration: 0.5)) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        withAnimation(.easeOut(duration: 1.0)) {
                             isActive = true
                         }
                     }

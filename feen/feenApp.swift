@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct feenApp: App {
@@ -13,5 +14,6 @@ struct feenApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: AppModelsEnum.all)
     }
 }

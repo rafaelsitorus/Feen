@@ -7,91 +7,71 @@
 
 import SwiftUI
 
+struct HistoryView: View {
+    let historyRecords = [
+        HistoryModel(date: "Monday, 11 March 2026", category: "Food", description: "Lunch at cafe", expense: 10000, isEarned: false),
+        HistoryModel(date: "Sunday, 10 March 2026", category: "Stipend", description: "Apple Developer Academy", expense: 5300000, isEarned: true),
+        HistoryModel(date: "Saturday, 09 March 2026", category: "Transport", description: "Bus pass", expense: 15000, isEarned: false)
+    ]
+    
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                ForEach(historyRecords) { record in
+                    HistoryItemView(record: record)
+                }
+            }
+            .padding()
+        }
+    }
+}
+
 struct HistoryItemView: View {
     let record: HistoryModel
     
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
+            
             // Left icon indicating earned/spent
             Circle()
                 .fill(record.isEarned ? Color.green.opacity(0.2) : Color.red.opacity(0.2))
-                .frame(width: 44, height: 44)
+                .frame(width: 38, height: 38)
                 .overlay(
                     Image(systemName: record.isEarned ? "arrow.up.circle.fill" : "arrow.down.circle.fill")
                         .foregroundColor(record.isEarned ? .green : .red)
-                        .font(.title2)
+                        .font(.title)
                 )
             
             // Category and description
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text(record.category)
-                    .font(.headline)
+                    .font(.headline.bold())
                     .foregroundColor(.primary)
                 
-                Text(record.description)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
+                Text(record.desc)
+                    .font(.footnote)
+                    .lineLimit(1)
                 
                 Text(record.date)
-                    .font(.caption)
-                    .foregroundColor(.gray)
+                    .font(.caption2)
             }
             
             Spacer()
             
             // Expense amount
-            Text(formattedExpense)
-                .font(.headline)
+            Text(record.expense, format: .currency(code: "IDR"))
+                .font(.system(size: 12, weight: .bold))
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
                 .foregroundColor(record.isEarned ? .green : .red)
         }
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color(.systemGray6))
+            RoundedRectangle(cornerRadius: 16)
+                .fill(.white)
         )
-        .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 0)
-    }
-    
-    private var formattedExpense: String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = Locale.current.currency?.identifier ?? "USD"
-        return formatter.string(from: NSNumber(value: record.expense)) ?? "$\(record.expense)"
-    }
-}
-
-struct HistoryView: View {
-    let historyRecords = [
-        HistoryModel(date: "11/03/25", category: "Food", description: "Lunch at cafe", expense: 10000, isEarned: false),
-        HistoryModel(date: "10/03/25", category: "Salary", description: "Monthly paycheck", expense: 500000, isEarned: true),
-        HistoryModel(date: "09/03/25", category: "Transport", description: "Bus pass", expense: 15000, isEarned: false)
-    ]
-    
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                Text("History")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .padding(.leading, 16)
-                    .padding(.top, 16)
-                
-                ForEach(historyRecords) { record in
-                    HistoryItemView(record: record)
-                }
-                
-                Spacer(minLength: 20)
-            }
-        }
-        .background(
-            LinearGradient(
-                colors: [Color.blue.opacity(0.1), Color.white],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-        )
+        .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 0)
     }
 }
 

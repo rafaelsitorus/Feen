@@ -9,30 +9,27 @@ import SwiftUI
 
 struct DailyQuoteView: View {
     
-    // View's params
     let quoteMessage: String
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             
-            Text("Daily Quote")
-                .font(.headline)
-                .foregroundStyle(.secondary)
-            
             Text("“\(quoteMessage)”")
                 .font(.title3)
                 .fontWeight(.medium)
         }
-        .padding()
-        .frame(maxWidth: .infinity, minHeight: 140, alignment: .leading)
+        .padding(28)
+        .frame(maxWidth: .infinity, minHeight: 140, alignment: .center)
         .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color(.systemGray6))
+            RoundedRectangle(cornerRadius: 52)
+                .fill(.white)
         )
         .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 0)
     }
 }
 
 #Preview {
-    DailyQuoteView(quoteMessage: "Hello World")
+    DailyQuoteView(quoteMessage: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Sit amet consectetur adipiscing elit quisque faucibus ex."
+    )
+    .padding()
 }

@@ -43,9 +43,9 @@ struct NewsCardView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color(.systemGray6))
+                .fill(.white)
         )
-        .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 0)
+        .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 0)
         .padding()
     }}
 
