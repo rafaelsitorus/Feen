@@ -28,7 +28,7 @@ final class GeminiService {
             throw GeminiError.invalidResponse
         }
         let base64Image = jpegData.base64EncodedString()
-        let apiKey = try GeminiKeyRotator.shared.nextKey()
+        let apiKey = try GeminiKeyRotator.shared.nextKey()  
         let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=\(apiKey)")!
 
         let prompt = """

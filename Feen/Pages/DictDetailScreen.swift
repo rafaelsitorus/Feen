@@ -1,0 +1,30 @@
+import SwiftUI
+
+struct DictDetailScreen: View {
+    
+    let dict: Dictionaries
+    
+    var body: some View {
+        
+        ScrollView {
+            
+            VStack(alignment: .leading, spacing: 20) {
+                
+                Text(dict.title)
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                
+                Divider()
+                
+                Text(dict.description)
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                
+                Spacer()
+            }
+            .padding()
+        }
+        .navigationTitle(dict.title)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}

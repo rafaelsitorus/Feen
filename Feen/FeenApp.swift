@@ -9,9 +9,17 @@ import SwiftUI
 
 @main
 struct FeenApp: App {
+    @StateObject var expenseController = ExpenseController()
+    @StateObject var categoryController = CategoryController()
+    @StateObject var settingsController = SettingsController()
+
     var body: some Scene {
         WindowGroup {
-            CameraScreen()
+            ContentView()
+                .environmentObject(expenseController)
+                .environmentObject(categoryController)
+                .environmentObject(settingsController)
+                .preferredColorScheme(.light)
         }
     }
 }

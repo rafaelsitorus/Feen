@@ -4,7 +4,3 @@ import SwiftUI
 // Keep this shim so existing references continue to work.
 
 typealias CameraView = CameraScreen
-
-#Preview {
-    CameraScreen()
-}
