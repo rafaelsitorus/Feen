@@ -16,7 +16,7 @@ struct SplashScreen: View {
         var body: some View {
             if isActive {
                 // Show main content after splash
-                HistoryView()
+                ContentView()
             } else {
                 // Splash content
                 VStack {

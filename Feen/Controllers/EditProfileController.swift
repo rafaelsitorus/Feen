@@ -9,7 +9,7 @@ class EditProfileController: ObservableObject {
     // Langsung dari CaseIterable, tidak perlu hardcode array lagi
     let incomeSources = SourceOfIncome.allCases
 
-    func load(from profile: UserProfile) {
+    func load(from profile: UserModel) {
         name = profile.name ?? ""
         sourceOfIncome = profile.sourceOfIncome
 

@@ -5,6 +5,8 @@
 
 import SwiftUI
 
+import SwiftUI
+
 struct OnboardingSourceView: View {
     @Binding var selected: SourceOfIncome?
 
@@ -59,7 +61,9 @@ struct OnboardingSourceView: View {
         } label: {
             VStack(spacing: 10) {
                 Text(emoji(for: source))
-                    .font(.system(size: 28))
+                    .font(.system(size: 28)) // Ensures emojis are properly rendered
+                    .frame(width: 50, height: 50) // Ensures enough space for the emoji
+
                 Text(source.rawValue)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(isSelected ? .white : AppTheme.textPrimary)

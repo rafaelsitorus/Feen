@@ -6,26 +6,14 @@
 //
 
 import Foundation
-import SwiftData
 
-@Model
-class UserModel {
-    var name: String
-    var sourceOfIncome: SourceOfIncomeEnum
+struct UserModel: Codable{
+    var name: String?
+    var monthlyIncome: Double?
+    var sourceOfIncome: SourceOfIncome?
+    var monthlyBudget: Double?
     
-    init(name: String, sourceOfIncome: SourceOfIncomeEnum) {
-        self.name = name
-        self.sourceOfIncome = sourceOfIncome
+    var isComplete: Bool{
+        name != nil && monthlyIncome != nil && sourceOfIncome != nil && monthlyBudget != nil
     }
 }
-
-//struct UserProfile: Codable{
-//    var name: String?
-//    var monthlyIncome: Double?
-//    var sourceOfIncome: SourceOfIncome?
-//    var monthlyBudget: Double?
-//    
-//    var isComplete: Bool{
-//        name != nil && monthlyIncome != nil && sourceOfIncome != nil && monthlyBudget != nil
-//    }
-//}

@@ -8,7 +8,7 @@ import Combine
 
 class OnboardingController: ObservableObject {
     @Published var currentStep: Int = 0
-    @Published var profile = UserProfile()  // langsung pakai UserProfile
+    @Published var profile = UserModel()  // langsung pakai UserModel
 
     let totalSteps = 4
 

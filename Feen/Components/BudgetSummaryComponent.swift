@@ -25,7 +25,7 @@ enum BudgetType {
     }
 }
 
-struct BudgetSummaryView: View {
+struct BudgetSummaryComponent: View {
     
     var todayDate: String
     var earned: Int
@@ -37,8 +37,8 @@ struct BudgetSummaryView: View {
             header
             
             HStack(spacing: 12) {
-                BudgetItemView(type: .earned, amount: earned)
-                BudgetItemView(type: .spent, amount: spent)
+                BudgetItem(type: .earned, amount: earned)
+                BudgetItem(type: .spent, amount: spent)
             }
             .padding(8)
             .frame(maxWidth: .infinity)
@@ -54,7 +54,7 @@ struct BudgetSummaryView: View {
     }
 }
 
-private extension BudgetSummaryView {
+private extension BudgetSummaryComponent {
     
     var header: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -84,7 +84,7 @@ private extension BudgetSummaryView {
     }
 }
 
-struct BudgetItemView: View {
+struct BudgetItem: View {
     
     var type: BudgetType
     var amount: Int
@@ -110,15 +110,19 @@ struct BudgetItemView: View {
             
             Spacer()
         }
-        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(AppColors.greenAccent)
+        )
+        .padding(6)
         .frame(maxWidth: .infinity)
     }
 }
 
 #Preview {
-    BudgetSummaryView(
+    BudgetSummaryComponent(
         todayDate: "Monday, 12 March 2026",
-        earned: 999999,
+        earned: 999999999999,
         spent: 99
     )
     .padding()

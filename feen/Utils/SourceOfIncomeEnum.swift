@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Enum dari SourceOfIncome - sudah diganti dengan file di Models/SourceOfIncome (Optional)
 enum SourceOfIncomeEnum: String, Codable {
     case salary
     case investment

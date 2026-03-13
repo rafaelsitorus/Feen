@@ -8,10 +8,10 @@
 import Foundation
 import SwiftData
 
+/// Untuk mendefinisikan Model yang ingin disimpan melalui SwiftData (Optional)
 enum AppModelsEnum {
     static let all: [any PersistentModel.Type] = [
         BudgetModel.self,
-        HistoryModel.self,
-        UserModel.self
+        HistoryModel.self
     ]
 }

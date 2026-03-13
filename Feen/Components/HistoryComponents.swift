@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HistoryView: View {
+struct HistoryComponents: View {
     let historyRecords = [
         HistoryModel(date: "Monday, 11 March 2026", category: "Food", description: "Lunch at cafe", expense: 10000, isEarned: false),
         HistoryModel(date: "Sunday, 10 March 2026", category: "Stipend", description: "Apple Developer Academy", expense: 5300000, isEarned: true),
@@ -15,18 +15,40 @@ struct HistoryView: View {
     ]
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                ForEach(historyRecords) { record in
-                    HistoryItemView(record: record)
+        VStack(alignment: .leading, spacing: 16) {
+            // Title and View All button
+            HStack {
+                Text("History")
+                    .font(.title2.bold())
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Button(action: {
+                    // Action for "View All" button
+                    print("View All tapped")
+                }) {
+                    Text("View All")
+                        .font(.footnote)
+                        .foregroundColor(.blue)
                 }
             }
-            .padding()
+            .padding([.top, .horizontal])
+            
+            // History records list
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    ForEach(historyRecords) { record in
+                        HistoryItem(record: record)
+                    }
+                }
+                .padding()
+            }
         }
     }
 }
 
-struct HistoryItemView: View {
+struct HistoryItem: View {
     let record: HistoryModel
     
     var body: some View {
@@ -76,5 +98,5 @@ struct HistoryItemView: View {
 }
 
 #Preview {
-    HistoryView()
+    HistoryComponents()
 }
