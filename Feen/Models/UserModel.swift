@@ -18,3 +18,14 @@ class UserModel {
         self.sourceOfIncome = sourceOfIncome
     }
 }
+
+//struct UserProfile: Codable{
+//    var name: String?
+//    var monthlyIncome: Double?
+//    var sourceOfIncome: SourceOfIncome?
+//    var monthlyBudget: Double?
+//    
+//    var isComplete: Bool{
+//        name != nil && monthlyIncome != nil && sourceOfIncome != nil && monthlyBudget != nil
+//    }
+//}
