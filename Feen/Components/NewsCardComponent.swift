@@ -21,9 +21,33 @@ struct NewsCardComponent: View {
                     .fill(Color.blue.opacity(0.25))
                     .frame(height: 140)
                 
-                Image(systemName: imageName)
-                    .font(.largeTitle)
-                    .foregroundStyle(.black.opacity(0.7))
+                if let imageURL = imageURL, let url = URL(string: imageURL) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+//                                .containerRelativeFrame(.horizontal)
+                                .aspectRatio(contentMode: .fit)
+                                .frame(height: 140)
+                                .clipped()
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                        case .failure(_), .empty:
+                            Image(systemName: "photo")
+                                .font(.largeTitle)
+                                .foregroundStyle(.black.opacity(0.7))
+                        @unknown default:
+                            Image(systemName: "photo")
+                                .font(.largeTitle)
+                                .foregroundStyle(.black.opacity(0.7))
+                        }
+                    }
+                } else {
+                    Image(systemName: "photo")
+                        .font(.largeTitle)
+                        .foregroundStyle(.black.opacity(0.7))
+                }
             }
             
             // Date
