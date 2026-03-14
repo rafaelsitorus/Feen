@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct NewsCardComponent: View {
-    var imageName: String
+    var imageURL: String?
     var date: String
     var quote: String
     
@@ -70,11 +70,12 @@ struct NewsCardComponent: View {
                 .fill(.white)
         )
         .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 0)
-    }}
+    }
+}
 
 #Preview {
     NewsCardComponent(
-        imageName: "photo",
+        imageURL: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/280px-PNG_transparency_demonstration_1.png",
         date: "11 / 03 / 2026",
         quote: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt."
     )

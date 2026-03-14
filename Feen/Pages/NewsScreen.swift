@@ -9,6 +9,9 @@ import SwiftUI
 
 // TODO: Add data and create modal to show news detail (*Card clicked)
 struct NewsScreen: View {
+    @StateObject var controller = NewsController()
+    @State var selectedNews: ProcessedNews?
+
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading) {
@@ -22,7 +25,7 @@ struct NewsScreen: View {
                         VStack(spacing: 16) {
                             ForEach(controller.processedNews) { news in
                                 NewsCardComponent(
-                                    imageURL: news.urlToImage,
+                                    imageName: news.urlToImage ?? "",
                                     date: news.publishedAt,
                                     quote: news.catchyTitle
                                 )
