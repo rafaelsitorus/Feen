@@ -15,7 +15,7 @@ struct FeenApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SplashScreen()
                 .environmentObject(expenseController)
                 .environmentObject(categoryController)
                 .environmentObject(settingsController)
