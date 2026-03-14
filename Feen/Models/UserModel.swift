@@ -1,13 +1,13 @@
 //
-//  UserProfile.swift
-//  Feen
+//  UserModel.swift
+//  feen
 //
-//  Created by Juan Fausta Pringadi on 12/03/26.
+//  Created by Fidel Fausta Cavell on 12/03/26.
 //
 
 import Foundation
 
-struct UserProfile: Codable{
+struct UserModel: Codable{
     var name: String?
     var monthlyIncome: Double?
     var sourceOfIncome: SourceOfIncome?

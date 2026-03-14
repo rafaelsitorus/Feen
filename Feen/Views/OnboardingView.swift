@@ -7,7 +7,7 @@ import SwiftUI
 
 struct OnboardingContainerView: View {
     @StateObject private var controller = OnboardingController()
-    var onFinished: (UserProfile) -> Void
+    var onFinished: (UserModel) -> Void
 
     var body: some View {
         ZStack {

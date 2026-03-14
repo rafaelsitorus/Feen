@@ -28,7 +28,7 @@ struct GlassTabBar: View {
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: 25))
         .padding(.horizontal, 20)
-        .padding(.bottom, 20)
+        .padding(.bottom, 4)
         .shadow(color: Color.gray.opacity(0.4), radius: 4, x: 0, y: 2)
     }
     

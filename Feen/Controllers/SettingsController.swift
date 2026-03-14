@@ -7,7 +7,7 @@ import Foundation
 import Combine
 
 class SettingsController: ObservableObject {
-    @Published var profile = UserProfile()
+    @Published var profile = UserModel()
     @Published var settings = AppSettings()
 
     // MARK: - Profile
@@ -32,7 +32,7 @@ class SettingsController: ObservableObject {
     // MARK: - Account
 
     func deleteAccount() {
-        profile = UserProfile()
+        profile = UserModel()
         UserDefaults.standard.removeObject(forKey: "hasCompletedOnboarding")
     }
 

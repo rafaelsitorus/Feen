@@ -6,12 +6,21 @@
 //
 
 import Foundation
+import SwiftData
 
-struct HistoryModel: Identifiable {
-    let id = UUID()
-    let date: String
-    let category: String
-    let description: String
-    let expense: Int
-    let isEarned: Bool
+@Model
+class HistoryModel {
+    var date: String
+    var category: String
+    var desc: String
+    var expense: Int
+    var isEarned: Bool
+    
+    init(date: String, category: String, description: String, expense: Int, isEarned: Bool) {
+        self.date = date
+        self.category = category
+        self.desc = description
+        self.expense = expense
+        self.isEarned = isEarned
+    }
 }
