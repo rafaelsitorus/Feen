@@ -28,9 +28,10 @@ struct NewsCardComponent: View {
                             image
                                 .resizable()
                                 .scaledToFill()
-                                .frame(maxWidth: .infinity)
+//                                .containerRelativeFrame(.horizontal)
+                                .aspectRatio(contentMode: .fit)
                                 .frame(height: 140)
-                                .clipped()           // ← ini yang penting, supaya tidak overflow keluar card
+                                .clipped()
                                 .clipShape(RoundedRectangle(cornerRadius: 16))
                         case .failure(_), .empty:
                             Image(systemName: "photo")

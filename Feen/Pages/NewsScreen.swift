@@ -34,10 +34,12 @@ struct NewsScreen: View {
                             }
                         }
                         .padding()
+                        .padding(.bottom, 80)
                     }
                 }
             }
             .navigationTitle("Latest Financial News")
+            .navigationBarTitleDisplayMode(.inline)
         }
         .task {
             await controller.fetchAndProcess()
