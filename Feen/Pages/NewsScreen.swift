@@ -7,10 +7,9 @@
 
 import SwiftUI
 
-// TODO: Add data and create modal to show news detail (*Card clicked)
 struct NewsScreen: View {
-    @StateObject var controller = NewsController()
-    @State var selectedNews: ProcessedNews?
+    @StateObject private var controller = NewsController()
+    @State private var selectedNews: ProcessedNews? = nil
 
     var body: some View {
         NavigationStack {
@@ -25,7 +24,7 @@ struct NewsScreen: View {
                         VStack(spacing: 16) {
                             ForEach(controller.processedNews) { news in
                                 NewsCardComponent(
-                                    imageName: news.urlToImage ?? "",
+                                    imageURL: news.urlToImage,
                                     date: news.publishedAt,
                                     quote: news.catchyTitle
                                 )
@@ -35,10 +34,12 @@ struct NewsScreen: View {
                             }
                         }
                         .padding()
+                        .padding(.bottom, 80)
                     }
                 }
             }
             .navigationTitle("Latest Financial News")
+            .navigationBarTitleDisplayMode(.inline)
         }
         .task {
             await controller.fetchAndProcess()
