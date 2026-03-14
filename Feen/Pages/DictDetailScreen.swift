@@ -18,13 +18,18 @@ struct DictDetailScreen: View {
                 
                 Text(dict.description)
                     .font(.body)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.black)
+                    
                 
                 Spacer()
             }
             .padding()
         }
-        .navigationTitle(dict.title)
+        .navigationTitle("Your Dictionary Details")
         .navigationBarTitleDisplayMode(.inline)
     }
+}
+
+#Preview {
+    DictDetailScreen(dict: Dictionaries.init(title: "Test", description: "Test"))
 }
