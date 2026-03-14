@@ -2,15 +2,19 @@
 //  NewsModel.swift
 //  Feen
 //
-//  Created by Made Vidyatma Adhi Krisna on 11/03/26.
+//  Created by Juan Fausta Pringadi on 14/03/26.
 //
 
 import Foundation
 
-struct ProcessedNews: Identifiable {
+struct NewsModel: Identifiable, Decodable{
     let id = UUID()
-    var urlToImage: String?
-    var publishedAt: String
-    var catchyTitle: String
-    var summary: String
+    let title: String
+    let urlToImage: String?
+    let content: String?
+    let publishedAt: String
+    
+    enum CodingKeys: String, CodingKey{
+        case title, urlToImage, content, publishedAt
+    }
 }
