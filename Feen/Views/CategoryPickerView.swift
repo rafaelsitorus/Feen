@@ -24,12 +24,19 @@ struct CategoryPickerView: View {
                     }
 
                     Button(action: { showAddCategory = true }) {
-                        Label("Tambah", systemImage: "plus")
+                        Label("Add", systemImage: "plus")
                             .font(.caption)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
                             .background(Color(.systemGray5))
                             .cornerRadius(20)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [Color(red: 0.0, green: 0.55, blue: 0.50),
+                                             Color(red: 0.0, green: 0.33, blue: 0.30)],
+                                    startPoint: .leading, endPoint: .trailing
+                                )
+                            )
                     }
                 }
                 .padding(.horizontal, 2)
@@ -54,6 +61,12 @@ struct CategoryChip: View {
     let category: Category
     let isSelected: Bool
 
+    private let gradient = LinearGradient(
+        colors: [Color(red: 0.0, green: 0.55, blue: 0.50),
+                 Color(red: 0.0, green: 0.33, blue: 0.30)],
+        startPoint: .leading, endPoint: .trailing
+    )
+
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: category.icon)
@@ -62,8 +75,10 @@ struct CategoryChip: View {
         .font(.caption)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(isSelected ? Color.accentColor : Color(.systemGray5))
-        .foregroundColor(isSelected ? .white : .primary)
+        .background(
+            isSelected ? gradient : LinearGradient(colors: [Color(.systemGray5), Color(.systemGray5)], startPoint: .leading, endPoint: .trailing)
+        )
+        .foregroundStyle(isSelected ? Color.white : Color.black)
         .cornerRadius(20)
     }
 }
@@ -85,6 +100,17 @@ struct AddCategorySheet: View {
                 },
                 trailing: Button("Simpan") { onSave() }
             )
+        }
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func `if`<Content: View>(_ condition: Bool, @ViewBuilder then: (Self) -> Content, else elseTransform: (Self) -> Content) -> some View {
+        if condition {
+            then(self)
+        } else {
+            elseTransform(self)
         }
     }
 }

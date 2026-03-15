@@ -15,7 +15,41 @@ struct AddExpenseView: View {
     @State private var alertMessage = ""
     @State private var transactionType: TransactionType = .expense
 
+    // Numpad & keyboard control
+    @State private var isAmountFocused: Bool = false
+    @FocusState private var isDescriptionFocused: Bool
+
+    // Camera
+    @State private var showCameraOptions = false
+    @State private var showCamera = false
+    @State private var showImagePicker = false
+    @State private var capturedImage: UIImage? = nil
+
     var amountValue: Int { Int(amountString) ?? 0 }
+
+    // Pre-defined gradients to help the compiler
+    private let expenseGradient = LinearGradient(
+        colors: [Color(red: 0.75, green: 0.10, blue: 0.10),
+                 Color(red: 0.50, green: 0.05, blue: 0.05)],
+        startPoint: .leading, endPoint: .trailing)
+
+    private let incomeGradient = LinearGradient(
+        colors: [Color(red: 0.0, green: 0.55, blue: 0.50),
+                 Color(red: 0.0, green: 0.33, blue: 0.30)],
+        startPoint: .leading, endPoint: .trailing)
+
+    private let inactiveGradient = LinearGradient(
+        colors: [Color(.systemGray6), Color(.systemGray6)],
+        startPoint: .leading, endPoint: .trailing)
+
+    private let saveGradient = LinearGradient(
+        colors: [Color(red: 0.0, green: 0.55, blue: 0.50),
+                 Color(red: 0.0, green: 0.33, blue: 0.30)],
+        startPoint: .leading, endPoint: .trailing)
+
+    private let disabledGradient = LinearGradient(
+        colors: [Color.gray, Color.gray],
+        startPoint: .leading, endPoint: .trailing)
 
     var body: some View {
         VStack(spacing: 0) {
@@ -28,22 +62,38 @@ struct AddExpenseView: View {
             ScrollView {
                 VStack(spacing: 16) {
 
-                    // MARK: Amount Display
+                    // MARK: Amount Display — tap to show numpad
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Amount")
                             .font(.caption).foregroundColor(.secondary)
-                        Text("Rp \(formattedAmount)")
-                            .font(.largeTitle.bold())
-                            .frame(maxWidth: .infinity, alignment: .trailing)
+                        Button(action: {
+                            isDescriptionFocused = false
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                                isAmountFocused = true
+                            }
+                        }) {
+                            HStack {
+                                Spacer()
+                                Text("Rp \(formattedAmount)")
+                                    .font(.largeTitle.bold())
+                                    .foregroundColor(.primary)
+                            }
                             .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(.systemGray6))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(isAmountFocused ? Color.accentColor : Color.clear, lineWidth: 2)
+                                    )
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
                     .padding(.horizontal)
 
-                    // Ganti HStack Date & Category Row menjadi:
+                    // MARK: Date & Transaction Type Row
                     HStack(spacing: 12) {
-                        // Tombol Date
                         Button(action: { showDatePicker.toggle() }) {
                             Label(formattedDate, systemImage: "calendar")
                                 .font(.subheadline)
@@ -59,19 +109,27 @@ struct AddExpenseView: View {
 
                         Spacer()
 
-                        // Tombol Pengeluaran / Pemasukan
                         HStack(spacing: 0) {
                             ForEach(TransactionType.allCases, id: \.self) { type in
+                                let isActive = transactionType == type
                                 Button(action: {
                                     transactionType = type
-                                    selectedCategory = nil  // reset kategori saat ganti tipe
+                                    selectedCategory = nil
                                 }) {
                                     Text(type.rawValue)
                                         .font(.caption.bold())
                                         .padding(.horizontal, 12)
                                         .padding(.vertical, 8)
-                                        .background(transactionType == type ? typeColor(type) : Color(.systemGray6))
-                                        .foregroundColor(transactionType == type ? .white : .secondary)
+                                        .background(
+                                            Group {
+                                                if isActive {
+                                                    typeColor(type)
+                                                } else {
+                                                    inactiveGradient
+                                                }
+                                            }
+                                        )
+                                        .foregroundColor(isActive ? .white : .secondary)
                                 }
                             }
                         }
@@ -85,20 +143,76 @@ struct AddExpenseView: View {
                         selectedCategory: $selectedCategory,
                         transactionType: transactionType
                     )
-                    
                     .padding(.horizontal)
 
-                    // MARK: Description
+                    // MARK: Description — compact, keyboard on tap
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Description")
                             .font(.caption).foregroundColor(.secondary)
-                        TextEditor(text: $description)
-                            .frame(height: 80)
-                            .padding(8)
+                        TextField("Add a note (optional)…", text: $description, axis: .vertical)
+                            .lineLimit(2...3)
+                            .focused($isDescriptionFocused)
+                            .padding(10)
                             .background(Color(.systemGray6))
                             .cornerRadius(12)
+                            .onTapGesture {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                                    isAmountFocused = false
+                                }
+                                isDescriptionFocused = true
+                            }
                     }
                     .padding(.horizontal)
+
+                    // MARK: Camera Button
+                    Button(action: {
+                        isAmountFocused = false
+                        isDescriptionFocused = false
+                        showCameraOptions = true
+                    }) {
+                        HStack(spacing: 10) {
+                            Image(systemName: capturedImage != nil ? "checkmark.circle.fill" : "camera.fill")
+                                .font(.system(size: 16, weight: .semibold))
+                            Text(capturedImage != nil ? "Photo Attached" : "Scan Receipt")
+                                .font(.subheadline.weight(.semibold))
+                        }
+                        .foregroundStyle(
+                            capturedImage != nil
+                            ? AnyShapeStyle(Color.white)
+                            : AnyShapeStyle(LinearGradient(
+                                colors: [Color(red: 0.0, green: 0.55, blue: 0.50),
+                                         Color(red: 0.0, green: 0.33, blue: 0.30)],
+                                startPoint: .leading, endPoint: .trailing))
+                        )
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(capturedImage != nil ? Color.accentColor : Color(.systemGray6))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(capturedImage != nil ? AnyShapeStyle(Color.clear) : AnyShapeStyle(LinearGradient(
+                                    colors: [Color(red: 0.0, green: 0.55, blue: 0.50),
+                                             Color(red: 0.0, green: 0.33, blue: 0.30)],
+                                    startPoint: .leading, endPoint: .trailing)), lineWidth: 1.5)
+                        )
+                    }
+                    .padding(.horizontal)
+                    .confirmationDialog("Add Receipt Photo", isPresented: $showCameraOptions, titleVisibility: .visible) {
+                        Button("Take Photo") { showCamera = true }
+                        Button("Choose from Library") { showImagePicker = true }
+                        if capturedImage != nil {
+                            Button("Remove Photo", role: .destructive) { capturedImage = nil }
+                        }
+                        Button("Cancel", role: .cancel) {}
+                    }
+                    .sheet(isPresented: $showCamera) {
+                        CameraPickerView(image: $capturedImage, sourceType: .camera)
+                    }
+                    .sheet(isPresented: $showImagePicker) {
+                        CameraPickerView(image: $capturedImage, sourceType: .photoLibrary)
+                    }
 
                     // MARK: Submit
                     Button(action: submitExpense) {
@@ -107,31 +221,40 @@ struct AddExpenseView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(
-                                amountValue > 0
-                                ? LinearGradient(colors: [Color(red: 0.0,  green: 0.55, blue: 0.50), Color(red: 0.0,  green: 0.33, blue: 0.30)], startPoint: .leading, endPoint: .trailing)
-                                : LinearGradient(colors: [Color.gray, Color.gray], startPoint: .leading, endPoint: .trailing)
-                            )
+                            .background(amountValue > 0 ? saveGradient : disabledGradient)
                             .cornerRadius(12)
                     }
                     .disabled(amountValue == 0)
                     .padding(.horizontal)
+                    .padding(.bottom, 12)
                 }
                 .padding(.vertical)
             }
+            .onTapGesture {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                    isAmountFocused = false
+                }
+                isDescriptionFocused = false
+            }
 
-            Divider()
-
-            // MARK: Numpad
-            NumpadView(displayValue: $amountString)
-                .padding(.vertical)
+            // MARK: Numpad — slides up when amount is focused
+            if isAmountFocused {
+                Divider()
+                NumpadView(displayValue: $amountString, onDismiss: {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                        isAmountFocused = false
+                    }
+                })
+                .transition(.move(edge: .bottom).combined(with: .opacity))
                 .background(Color(.systemBackground))
+            }
         }
         .alert("Error", isPresented: $showAlert) {
             Button("OK") {}
         } message: {
             Text(alertMessage)
         }
+        .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isAmountFocused)
     }
 
     // MARK: - Helpers
@@ -160,7 +283,6 @@ struct AddExpenseView: View {
             showAlert = true
             return
         }
-
         expenseController.addExpense(
             amount: amountValue,
             date: selectedDate,
@@ -169,11 +291,46 @@ struct AddExpenseView: View {
         )
         dismiss()
     }
-    
-    private func typeColor(_ type: TransactionType) -> Color {
-        type == .expense ? .red : .green
+
+    private func typeColor(_ type: TransactionType) -> LinearGradient {
+        type == .expense ? expenseGradient : incomeGradient
     }
 }
+
+// MARK: - Camera / Image Picker Bridge
+
+struct CameraPickerView: UIViewControllerRepresentable {
+    @Binding var image: UIImage?
+    var sourceType: UIImagePickerController.SourceType
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = sourceType
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+
+    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        let parent: CameraPickerView
+        init(_ parent: CameraPickerView) { self.parent = parent }
+
+        func imagePickerController(_ picker: UIImagePickerController,
+                                   didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+            parent.image = info[.originalImage] as? UIImage
+            picker.dismiss(animated: true)
+        }
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            picker.dismiss(animated: true)
+        }
+    }
+}
+
+// MARK: - Date Picker Sheet
 
 struct DatePickerSheet: View {
     @Binding var selectedDate: Date
@@ -184,14 +341,12 @@ struct DatePickerSheet: View {
             DatePicker("Pilih Tanggal", selection: $selectedDate, displayedComponents: .date)
                 .datePickerStyle(.graphical)
                 .padding()
-                .navigationBarItems(trailing: Button("Selesai") { dismiss() })
+                .navigationBarItems(trailing: Button("Done") { dismiss() })
         }
     }
 }
 
-
 #Preview {
-    // Simple preview/mocks for controllers
     let expenseController = ExpenseController()
     let categoryController = CategoryController()
     return AddExpenseView(
