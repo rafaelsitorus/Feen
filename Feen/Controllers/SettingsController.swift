@@ -9,7 +9,6 @@ import Combine
 class SettingsController: ObservableObject {
     private let profileKey = "user_profile"
     
-    @Published var notificationsEnabled: Bool = true
     @Published var profile: UserModel {
         didSet {
             LocalStorageManager.shared.save(profile, forKey: profileKey)
@@ -23,7 +22,6 @@ class SettingsController: ObservableObject {
     }
     
     // MARK: - Profile
-    
     func updateProfile(
         name: String,
         monthlyIncome: Double?,
@@ -36,18 +34,7 @@ class SettingsController: ObservableObject {
         profile.monthlyBudget = monthlyBudget
     }
     
-    // MARK: - Preferences
-    
-    func toggleNotifications() {
-        notificationsEnabled.toggle()
-    }
-    
-//    func updateCurrency(_ currency: String) {
-//        settings.selectedCurrency = currency
-//    }
-    
     // MARK: - Account
-    
     func deleteAccount() {
         profile = UserModel()
         LocalStorageManager.shared.remove(profileKey)
@@ -55,7 +42,6 @@ class SettingsController: ObservableObject {
     }
     
     // MARK: - Helpers
-    
     func formattedIncome() -> String {
         guard let income = profile.monthlyIncome else { return "-" }
         

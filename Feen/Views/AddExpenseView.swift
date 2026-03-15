@@ -13,7 +13,7 @@ struct AddExpenseView: View {
     @EnvironmentObject var budgetController: BudgetController
     @EnvironmentObject var settingsController: SettingsController
     @Environment(\.dismiss) var dismiss
-
+    
     // State
     @State private var amountString: String = "0"
     @State private var selectedDate: Date = Date()
@@ -23,11 +23,12 @@ struct AddExpenseView: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var transactionType: TransactionType = .expense
-
+    
     // Numpad & keyboard control
     @State private var isAmountFocused: Bool = false
+    //    @FocusState private var isDescriptionFocused: Bool
     @FocusState private var focusedField: FocusField?
-
+    
     // Camera
     @State private var showCameraOptions = false
     @State private var showCamera = false
@@ -44,42 +45,42 @@ struct AddExpenseView: View {
     @State private var savedDescription: String = ""
 
     var amountValue: Int { Int(amountString) ?? 0 }
-
+    
     // Pre-defined gradients to help the compiler
     private let expenseGradient = LinearGradient(
         colors: [Color(red: 0.75, green: 0.10, blue: 0.10),
                  Color(red: 0.50, green: 0.05, blue: 0.05)],
         startPoint: .leading, endPoint: .trailing)
-
+    
     private let incomeGradient = LinearGradient(
         colors: [Color(red: 0.0, green: 0.55, blue: 0.50),
                  Color(red: 0.0, green: 0.33, blue: 0.30)],
         startPoint: .leading, endPoint: .trailing)
-
+    
     private let inactiveGradient = LinearGradient(
         colors: [Color(.systemGray6), Color(.systemGray6)],
         startPoint: .leading, endPoint: .trailing)
-
+    
     private let saveGradient = LinearGradient(
         colors: [Color(red: 0.0, green: 0.55, blue: 0.50),
                  Color(red: 0.0, green: 0.33, blue: 0.30)],
         startPoint: .leading, endPoint: .trailing)
-
+    
     private let disabledGradient = LinearGradient(
         colors: [Color.gray, Color.gray],
         startPoint: .leading, endPoint: .trailing)
-
+    
     var body: some View {
         VStack(spacing: 0) {
-
+            
             // MARK: Header
             Text("Insert Transaction")
                 .font(.headline)
                 .padding()
-
+            
             ScrollView {
-                VStack(spacing: 16) {
-
+                VStack(spacing: 24) {
+                    
                     // MARK: Amount Display — tap to show numpad
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Amount")
@@ -109,7 +110,7 @@ struct AddExpenseView: View {
                         .buttonStyle(.plain)
                     }
                     .padding(.horizontal)
-
+                    
                     // MARK: Date & Transaction Type Row
                     HStack(spacing: 12) {
                         Button(action: { showDatePicker.toggle() }) {
@@ -124,9 +125,9 @@ struct AddExpenseView: View {
                         .sheet(isPresented: $showDatePicker) {
                             DatePickerSheet(selectedDate: $selectedDate)
                         }
-
+                        
                         Spacer()
-
+                        
                         HStack(spacing: 0) {
                             ForEach(TransactionType.allCases, id: \.self) { type in
                                 let isActive = transactionType == type
@@ -154,7 +155,7 @@ struct AddExpenseView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     .padding(.horizontal)
-
+                    
                     // MARK: Category Picker
                     CategoryPickerView(
                         categoryController: categoryController,
@@ -162,7 +163,7 @@ struct AddExpenseView: View {
                         transactionType: transactionType
                     )
                     .padding(.horizontal)
-
+                    
                     // MARK: Description — compact, keyboard on tap
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Description")
@@ -174,13 +175,13 @@ struct AddExpenseView: View {
                             .background(Color(.systemGray6))
                             .cornerRadius(12)
                             .toolbar {
-                                  ToolbarItemGroup(placement: .keyboard) {
-                                      Spacer()
-                                      Button("Done") {
-                                          focusedField = nil
-                                      }
-                                  }
-                              }
+                                ToolbarItemGroup(placement: .keyboard) {
+                                    Spacer()
+                                    Button("Done") {
+                                        focusedField = nil
+                                    }
+                                }
+                            }
                             .onTapGesture {
                                 withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
                                     isAmountFocused = false
@@ -189,7 +190,7 @@ struct AddExpenseView: View {
                             }
                     }
                     .padding(.horizontal)
-
+                    
                     // MARK: Camera Button
                     Button(action: {
                         isAmountFocused = false
@@ -256,7 +257,6 @@ struct AddExpenseView: View {
                         )
                         .padding(.horizontal)
                     }
-
                     // MARK: Submit
                     Button(action: submitExpense) {
                         Text("Save")
@@ -279,7 +279,7 @@ struct AddExpenseView: View {
                 }
                 focusedField = nil
             }
-
+            
             // MARK: Numpad — slides up when amount is focused
             if isAmountFocused {
                 Divider()
@@ -292,6 +292,7 @@ struct AddExpenseView: View {
                 .background(Color(.systemBackground))
             }
         }
+        .padding(.horizontal, 12)
         .alert("Error", isPresented: $showAlert) {
             Button("OK") {}
         } message: {
@@ -315,7 +316,7 @@ struct AddExpenseView: View {
             }
         }
     }
-
+    
     // MARK: - Helpers
     private var formattedAmount: String {
         let formatter = NumberFormatter()
@@ -323,14 +324,14 @@ struct AddExpenseView: View {
         formatter.groupingSeparator = "."
         return formatter.string(from: NSNumber(value: amountValue)) ?? amountString
     }
-
+    
     private var formattedDate: String {
         let f = DateFormatter()
         f.dateStyle = .medium
         f.locale = Locale(identifier: "en_EN")
         return f.string(from: selectedDate)
     }
-
+    
     private func submitExpense() {
         guard amountValue > 0 else {
             alertMessage = "Jumlah tidak boleh kosong"
@@ -410,7 +411,7 @@ struct AddExpenseView: View {
         capturedImage = nil
         transactionType = .expense
     }
-
+    
     private func typeColor(_ type: TransactionType) -> LinearGradient {
         type == .expense ? expenseGradient : incomeGradient
     }
@@ -421,28 +422,28 @@ struct AddExpenseView: View {
 struct CameraPickerView: UIViewControllerRepresentable {
     @Binding var image: UIImage?
     var sourceType: UIImagePickerController.SourceType
-
+    
     func makeCoordinator() -> Coordinator { Coordinator(self) }
-
+    
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.sourceType = sourceType
         picker.delegate = context.coordinator
         return picker
     }
-
+    
     func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
-
+    
     class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
         let parent: CameraPickerView
         init(_ parent: CameraPickerView) { self.parent = parent }
-
+        
         func imagePickerController(_ picker: UIImagePickerController,
                                    didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
             parent.image = info[.originalImage] as? UIImage
             picker.dismiss(animated: true)
         }
-
+        
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             picker.dismiss(animated: true)
         }
@@ -454,7 +455,7 @@ struct CameraPickerView: UIViewControllerRepresentable {
 struct DatePickerSheet: View {
     @Binding var selectedDate: Date
     @Environment(\.dismiss) var dismiss
-
+    
     var body: some View {
         NavigationStack {                          // ← was NavigationView
             DatePicker("Pilih Tanggal", selection: $selectedDate, displayedComponents: .date)

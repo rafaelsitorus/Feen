@@ -47,7 +47,7 @@ struct HistoryComponents: View {
                 .padding()
             }
         }
-        .padding(.bottom, 72)
+        .padding(.bottom, 8)
         .fullScreenCover(isPresented: $showAllHistory) {
             NavigationStack {
                 AllHistoryScreen(historyRecords: historyRecords)
