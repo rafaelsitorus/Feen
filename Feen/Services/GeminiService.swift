@@ -339,4 +339,56 @@ final class GeminiService {
         let text = try extractText(from: data)
         return text
     }
+    
+    
+    func generateHomeQuote(
+        monthlyIncome: Double,
+        monthlyBudget: Double,   // ← tambah ini
+        earned: Int,
+        spent: Int
+    ) async throws -> String {
+        let remaining = monthlyBudget - Double(spent)  // sisa dari budget, bukan income
+        let spentOfBudget = monthlyBudget > 0 ? (Double(spent) / monthlyBudget * 100) : 0
+        let spentOfIncome = monthlyIncome > 0 ? (Double(spent) / monthlyIncome * 100) : 0
+        let budgetRatio = monthlyIncome > 0 ? (monthlyBudget / monthlyIncome * 100) : 0
+
+        let prompt = """
+        You are a friendly financial coach for a Gen Z user in Indonesia.
+        Generate ONE short, motivational financial insight (max 2 sentences) based on their current month status.
+
+        User's financial snapshot:
+        - Monthly income: Rp \(Int(monthlyIncome))
+        - Monthly budget (spending limit they set): Rp \(Int(monthlyBudget)) (\(String(format: "%.0f", budgetRatio))% of income)
+        - Total earned this period: Rp \(earned)
+        - Total spent this period: Rp \(spent)
+        - Remaining from budget: Rp \(Int(remaining))
+        - Spent vs budget: \(String(format: "%.1f", spentOfBudget))%
+        - Spent vs income: \(String(format: "%.1f", spentOfIncome))%
+
+        RULES:
+        - Base your tone on spent vs BUDGET (not income), since that's what the user committed to
+        - If spent < 50% of budget: positive reinforcement
+        - If spent 50–75% of budget: gentle reminder to stay mindful
+        - If spent 75–99% of budget: honest warning, still supportive
+        - If spent >= 100% of budget: serious but kind alert that they've exceeded their own limit
+        - If budget < income, acknowledge they're being intentionally disciplined
+        - No emojis, no markdown, plain text only
+        - Respond with ONLY the quote text, nothing else
+        """
+
+        let body: [String: Any] = [
+            "contents": [["parts": [["text": prompt]]]]
+        ]
+
+        let (data, _) = try await performWithRetry { apiKey, model in
+            let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(apiKey)")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+            return request
+        }
+
+        return try extractText(from: data)
+    }
 }
