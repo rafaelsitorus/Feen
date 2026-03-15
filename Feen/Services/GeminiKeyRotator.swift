@@ -13,11 +13,22 @@ final class GeminiKeyRotator: @unchecked Sendable {
     static let shared = GeminiKeyRotator()
 
     // MARK: – Add your Gemini API keys here
-    private let apiKeys: [String] = [
-        "AIzaSyBC4N8IxxtZYViyO6uDkjv80M22i3exHZU"
-        // "YOUR_GEMINI_API_KEY_2",
-        // "YOUR_GEMINI_API_KEY_3",
-    ]
+    private let apiKeys: [String] = {
+        var keys: [String] = []
+        
+        for i in 1...50 {
+            let keyName = "GEMINI_API_KEY_\(i)"
+            if let key = Bundle.main.object(forInfoDictionaryKey: keyName) as? String, !key.isEmpty {
+                keys.append(key)
+            }
+        }
+        
+        if keys.isEmpty {
+            print("⚠️ Warning: No API keys found in Info.plist")
+        }
+        
+        return keys
+    }()
 
     private var currentIndex = 0
     private let lock = NSLock()
