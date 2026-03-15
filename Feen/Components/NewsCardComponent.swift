@@ -59,8 +59,8 @@ struct NewsCardComponent: View {
             }
             
             // Quote text
-            Text("\"\(quote)\"")
-                .font(.body)
+            Text(quote)
+                .font(.body.bold())
                 .multilineTextAlignment(.leading)
                 .padding(.horizontal)
         }

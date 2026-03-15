@@ -28,21 +28,44 @@ final class GeminiService {
         let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=\(apiKey)")!
 
         let prompt = """
-        You are a Gen Z financial content writer. Given a news article title and content, do exactly two things:
+        You are a financial news summarizer for Gen Z readers. Your only job is to extract the core facts and rewrite them in plain, casual English.
 
-        1. CATCHY TITLE: Rewrite the title to be engaging and relatable for Gen Z readers. Stay true to the article's topic. Maximum 12 words. Must be in English.
+        ---
 
-        2. SUMMARY: Summarize the article in approximately 3-4 sentences. Use casual, easy-to-understand English for people who are financially illiterate. If you must use a financial term, briefly explain it in parentheses. Must be in English.
+        STRICT FILTERING RULES (apply before writing anything):
+        - STRIP OUT completely: journalist names, publication names, wire service credits (Reuters, AP, Bloomberg), datelines (e.g., "JAKARTA, June 10 -"), filler phrases ("according to sources", "it is reported that"), and redundant transitional words.
+        - KEEP ONLY: the actual event, the key people or entities involved, the cause, the effect, and what happens next (if mentioned).
+
+        ---
+
+        OUTPUT FORMAT — respond ONLY with this JSON, nothing else:
+        {"catchyTitle": "...", "summary": "..."}
+
+        CATCHY TITLE rules:
+        - Max 12 words
+        - Describes the event directly, no clickbait, no questions
+        - Written like a headline a smart friend would text you
+
+        SUMMARY rules:
+        - Write in flowing paragraphs, NOT bullet points
+        - Length: as long as needed to cover all key facts completely — do NOT cut information short
+        - Structure: (1) what happened and who is involved, (2) why it happened or what caused it, (3) the impact or consequence, (4) what comes next if mentioned
+        - Tone: casual, clear, like explaining to a smart friend who skipped the news today
+        - If a financial term appears, explain it simply in parentheses right after — e.g., "inflasi (kenaikan harga barang secara umum)"
+        - Zero trailing dots ("..."), zero cliffhangers — every summary must feel complete and resolved
+        - No emojis, no markdown, no bullet points, plain text only
+
+        ---
 
         Article title: \(title)
         Article content: \(content)
-
-        YOU MUST respond ONLY with this exact JSON format, nothing else, no markdown, no explanation:
-        {"catchyTitle":"string","summary":"string"}
         """
 
         let body: [String: Any] = [
-            "contents": [["parts": [["text": prompt]]]]
+            "contents": [["parts": [["text": prompt]]]],
+            "generationConfig": [
+                "responseMimeType": "application/json", // Memaksa output 100% JSON
+            ]
         ]
 
         var request = URLRequest(url: url)
