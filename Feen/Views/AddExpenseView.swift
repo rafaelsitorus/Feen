@@ -1,6 +1,12 @@
 import SwiftUI
 
 struct AddExpenseView: View {
+    
+    // Tambah di atas struct AddExpenseView
+    private enum FocusField {
+        case description
+    }
+    
     @ObservedObject var expenseController: ExpenseController
     @ObservedObject var categoryController: CategoryController
     @Environment(\.dismiss) var dismiss
@@ -17,7 +23,8 @@ struct AddExpenseView: View {
 
     // Numpad & keyboard control
     @State private var isAmountFocused: Bool = false
-    @FocusState private var isDescriptionFocused: Bool
+//    @FocusState private var isDescriptionFocused: Bool
+    @FocusState private var focusedField: FocusField?
 
     // Camera
     @State private var showCameraOptions = false
@@ -67,7 +74,7 @@ struct AddExpenseView: View {
                         Text("Amount")
                             .font(.caption).foregroundColor(.secondary)
                         Button(action: {
-                            isDescriptionFocused = false
+                            focusedField = nil
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
                                 isAmountFocused = true
                             }
@@ -151,15 +158,23 @@ struct AddExpenseView: View {
                             .font(.caption).foregroundColor(.secondary)
                         TextField("Add a note (optional)…", text: $description, axis: .vertical)
                             .lineLimit(2...3)
-                            .focused($isDescriptionFocused)
+                            .focused($focusedField, equals: .description)
                             .padding(10)
                             .background(Color(.systemGray6))
                             .cornerRadius(12)
+                            .toolbar {
+                                  ToolbarItemGroup(placement: .keyboard) {
+                                      Spacer()
+                                      Button("Done") {
+                                          focusedField = nil
+                                      }
+                                  }
+                              }
                             .onTapGesture {
                                 withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
                                     isAmountFocused = false
                                 }
-                                isDescriptionFocused = true
+                                focusedField = .description
                             }
                     }
                     .padding(.horizontal)
@@ -167,7 +182,7 @@ struct AddExpenseView: View {
                     // MARK: Camera Button
                     Button(action: {
                         isAmountFocused = false
-                        isDescriptionFocused = false
+                        focusedField = nil
                         showCameraOptions = true
                     }) {
                         HStack(spacing: 10) {
@@ -234,7 +249,7 @@ struct AddExpenseView: View {
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
                     isAmountFocused = false
                 }
-                isDescriptionFocused = false
+                focusedField = nil
             }
 
             // MARK: Numpad — slides up when amount is focused
@@ -337,11 +352,15 @@ struct DatePickerSheet: View {
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        NavigationView {
+        NavigationStack {                          // ← was NavigationView
             DatePicker("Pilih Tanggal", selection: $selectedDate, displayedComponents: .date)
                 .datePickerStyle(.graphical)
                 .padding()
-                .navigationBarItems(trailing: Button("Done") { dismiss() })
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {   // ← ganti dari navigationBarItems
+                        Button("Done") { dismiss() }
+                    }
+                }
         }
     }
 }
