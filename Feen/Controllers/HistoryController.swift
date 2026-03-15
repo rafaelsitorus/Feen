@@ -6,45 +6,57 @@
 //
 
 import Foundation
-import SwiftData
+import Combine
 
-class HistoryController {
-    private var context: ModelContext
+class HistoryController: ObservableObject {
     
-    init(context: ModelContext) {
-        self.context = context
-    }
+    private let historyKey = "transaction_history"
     
-    func fetchHistories() -> [HistoryModel] {
-        let request = FetchDescriptor<HistoryModel>()
-        
-        do {
-            let histories = try context.fetch(request)
-            print("Fetch histories successfully!")
-            return histories
-        } catch {
-            print("Error fetch histories: \(error)")
-            return []
+    @Published var histories: [HistoryModel] = [] {
+        didSet {
+            saveHistory()
         }
     }
     
-    func saveHistory(date: String, category: String, description: String, expense: Int, isEarned: Bool) {
-        let history = HistoryModel(date: date, category: category, description: description, expense: expense, isEarned: isEarned)
-        context.insert(history)
+    init() {
+        loadHistory()
+    }
+    
+    // MARK: - Storage
+    
+    private func loadHistory() {
+        histories =
+        LocalStorageManager.shared.load([HistoryModel].self, forKey: historyKey)
+        ?? []
+    }
+    
+    private func saveHistory() {
+        LocalStorageManager.shared.save(histories, forKey: historyKey)
+    }
+    
+    // MARK: - CRUD
+    
+    func addTransaction(
+        amount: Int,
+        category: Category,
+        description: String?,
+        date: Date = Date()
+    ) {
+        let newHistory = HistoryModel(
+            amount: amount,
+            date: date,
+            category: category,
+            description: description
+        )
         
-        do {
-            try context.save()
-            print("New history saved!")
-        } catch {
-            print("Error saving history: \(history)")
-        }
+        histories.insert(newHistory, at: 0)
     }
     
-    func updateHistory() {
-        // Nothing
+    func deleteTransaction(id: UUID) {
+        histories.removeAll { $0.id == id }
     }
     
-    func deleteHistory() {
-        // Nothing
+    func clearHistory() {
+        histories.removeAll()
     }
 }
