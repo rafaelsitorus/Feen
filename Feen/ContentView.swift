@@ -34,6 +34,9 @@ struct ContentView: View {
                 NavigationStack { SettingsView() }.tag(4)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+            .safeAreaInset(edge: .bottom) {      // ← tambah ini
+                      Color.clear.frame(height: 90)    // reserved space untuk GlassTabBar
+                  }
 
             GlassTabBar(selectedTab: $selectedTab)
         }
