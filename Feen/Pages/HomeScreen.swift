@@ -11,6 +11,16 @@ struct HomeScreen: View {
     @EnvironmentObject var settingController: SettingsController
     @EnvironmentObject var budgetController: BudgetController
     
+    let historyRecords: [HistoryModel] = [
+        HistoryModel(amount: 10000, date: Date(), category: Category.defaultExpenses[0], description: "Lunch at cafe"),
+        HistoryModel(amount: 5300000, date: Date(), category: Category.defaultIncomes[0], description: "Apple Developer Academy"),
+        HistoryModel(amount: 15000, date: Date(), category: Category.defaultExpenses[1], description: "Bus pass"),
+        HistoryModel(amount: 5300000, date: Date(), category: Category.defaultIncomes[0], description: "Apple Developer Academy"),
+        HistoryModel(amount: 15000, date: Date(), category: Category.defaultExpenses[1], description: "Bus pass"),
+        HistoryModel(amount: 5300000, date: Date(), category: Category.defaultIncomes[0], description: "Apple Developer Academy"),
+        HistoryModel(amount: 15000, date: Date(), category: Category.defaultExpenses[1], description: "Bus pass")
+    ]
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Hi, \(settingController.displayName)!")
@@ -26,13 +36,12 @@ struct HomeScreen: View {
             
             QuoteComponent(quoteMessage: "Lorem ipsum dolor sit amet consectetur adipiscing elit.")
             
-            HistoryComponents()
+            HistoryComponents(historyRecords: historyRecords, isHome: true)
             
             Spacer()
         }
-        .padding(.horizontal, 28)
-    }
-}
+        .padding(.horizontal, 24)
+    }}
 
 #Preview {
     HomeScreen()
