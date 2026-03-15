@@ -9,14 +9,17 @@ import SwiftUI
 
 // TODO: Add data and create HistoryDetailScreen (*View All clicked)
 struct HomeScreen: View {
+    @EnvironmentObject var settingController: SettingsController
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Hi, Made!")
+            Text("Hi, \(settingController.displayName)!")
                 .font(Font.title3.bold())
                 .padding(.leading, 4)
             
             BudgetSummaryComponent(
-                todayDate: "Monday, 12 March 2026",
+                todayDate: Date.now.formatted(
+                    .dateTime.weekday(.wide).day().month(.wide).year()),
                 earned: 999999999999,
                 spent: 99
             )
@@ -25,12 +28,9 @@ struct HomeScreen: View {
             
             HistoryComponents()
             
-            Text("[Chart View (Optional)]")
-                .padding(.horizontal)
-            
             Spacer()
         }
-        .padding()
+        .padding(.horizontal, 28)
     }
 }
 

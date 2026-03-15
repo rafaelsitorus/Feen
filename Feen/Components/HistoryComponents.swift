@@ -8,10 +8,49 @@
 import SwiftUI
 
 struct HistoryComponents: View {
-    let historyRecords = [
-        HistoryModel(date: "Monday, 11 March 2026", category: "Food", description: "Lunch at cafe", expense: 10000, isEarned: false),
-        HistoryModel(date: "Sunday, 10 March 2026", category: "Stipend", description: "Apple Developer Academy", expense: 5300000, isEarned: true),
-        HistoryModel(date: "Saturday, 09 March 2026", category: "Transport", description: "Bus pass", expense: 15000, isEarned: false)
+    let historyRecords: [HistoryModel] = [
+        HistoryModel(
+            amount: 10000,
+            date: Date(),
+            category: Category.defaultExpenses[0],
+            description: "Lunch at cafe"
+        ),
+        HistoryModel(
+            amount: 5300000,
+            date: Date(),
+            category: Category.defaultIncomes[0],
+            description: "Apple Developer Academy"
+        ),
+        HistoryModel(
+            amount: 15000,
+            date: Date(),
+            category: Category.defaultExpenses[1],
+            description: "Bus pass"
+        ),
+        HistoryModel(
+            amount: 5300000,
+            date: Date(),
+            category: Category.defaultIncomes[0],
+            description: "Apple Developer Academy"
+        ),
+        HistoryModel(
+            amount: 15000,
+            date: Date(),
+            category: Category.defaultExpenses[1],
+            description: "Bus pass"
+        ),
+        HistoryModel(
+            amount: 5300000,
+            date: Date(),
+            category: Category.defaultIncomes[0],
+            description: "Apple Developer Academy"
+        ),
+        HistoryModel(
+            amount: 15000,
+            date: Date(),
+            category: Category.defaultExpenses[1],
+            description: "Bus pass"
+        )
     ]
     
     var body: some View {
@@ -38,62 +77,72 @@ struct HistoryComponents: View {
             // History records list
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    ForEach(historyRecords) { record in
+                    ForEach(historyRecords.prefix(5)) { record in
                         HistoryItem(record: record)
                     }
                 }
                 .padding()
             }
         }
+        .padding(.bottom, 60)
     }
 }
 
 struct HistoryItem: View {
+    
     let record: HistoryModel
     
     var body: some View {
-        HStack(alignment: .center, spacing: 16) {
+        
+        HStack(spacing: 16) {
             
-            // Left icon indicating earned/spent
-            Circle()
-                .fill(record.isEarned ? Color.green.opacity(0.2) : Color.red.opacity(0.2))
-                .frame(width: 38, height: 38)
-                .overlay(
-                    Image(systemName: record.isEarned ? "arrow.up.circle.fill" : "arrow.down.circle.fill")
-                        .foregroundColor(record.isEarned ? .green : .red)
-                        .font(.title)
-                )
-            
-            // Category and description
-            VStack(alignment: .leading, spacing: 8) {
-                Text(record.category)
-                    .font(.headline.bold())
-                    .foregroundColor(.primary)
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(record.isIncome ? .green.opacity(0.15) : .red.opacity(0.15))
+                    .frame(width: 40, height: 40)
                 
-                Text(record.desc)
-                    .font(.footnote)
+                Image(systemName: record.category.icon)
+                    .foregroundColor(record.isIncome ? .green : .red)
+            }
+            
+            
+            // Info
+            VStack(alignment: .leading, spacing: 4) {
+                
+                Text(record.category.name)
+                    .font(.headline)
+                
+                Text(record.description ?? "-")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
                     .lineLimit(1)
                 
-                Text(record.date)
-                    .font(.caption2)
+                Text(record.date.formatted(
+                    .dateTime.weekday(.wide).day().month(.wide).year()
+                ))
+                .lineLimit(1)
+                .font(.system(size: 8))
+                .foregroundColor(.gray)
             }
             
             Spacer()
             
-            // Expense amount
-            Text(record.expense, format: .currency(code: "IDR"))
-                .font(.system(size: 12, weight: .bold))
-                .monospacedDigit()
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-                .foregroundColor(record.isEarned ? .green : .red)
+            // Amount
+            Text(
+                record.amount,
+                format: .currency(code: "IDR")
+            )
+            .font(.system(size: 14, weight: .bold))
+            .foregroundColor(record.isIncome ? .green : .red)
+            .monospacedDigit()
         }
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(.white)
         )
-        .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 0)
+        .shadow(color: .black.opacity(0.08), radius: 6)
     }
 }
 

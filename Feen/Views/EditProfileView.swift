@@ -73,8 +73,6 @@ struct EditProfileView: View {
 
                 TextField("0", text: $controller.incomeText)
                     .keyboardType(.numberPad)
-                    .font(.system(size: 16))
-                    .foregroundColor(AppTheme.textPrimary)
                     .padding(.vertical, 14)
                     .padding(.trailing, 16)
             }
