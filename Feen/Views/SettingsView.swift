@@ -3,15 +3,15 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var controller: SettingsController
     @StateObject private var editController = EditProfileController()
-
+    
     @State private var showEditProfile = false
     @State private var showDeleteAlert = false
-
+    
     var body: some View {
         NavigationView {
             ZStack {
                 AppTheme.background.ignoresSafeArea()
-
+                
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
                         ProfileCardView(
@@ -24,13 +24,14 @@ struct SettingsView: View {
                                 showEditProfile = true
                             }
                         )
-
+                        
                         profileSection
                         preferencesAccountSection
-
-                        Spacer().frame(height: 100)
+                        
+                        Spacer()
                     }
                     .padding(.top, 12)
+                    .padding(.bottom, 60)
                 }
             }
             .navigationTitle("Settings")
@@ -55,9 +56,9 @@ struct SettingsView: View {
             Text("Are you sure? All your data will be permanently deleted and cannot be recovered.")
         }
     }
-
+    
     // MARK: - Sections
-
+    
     private var profileSection: some View {
         SettingsSectionCard(title: "Profile") {
             SettingsRow(
@@ -85,9 +86,10 @@ struct SettingsView: View {
             )
         }
     }
-
+    
     private var preferencesAccountSection: some View {
         SettingsSectionCard(title: "Preferences Account") {
+            
             SettingsToggleRow(
                 icon: "bell",
                 iconColor: Color(red: 0.9, green: 0.4, blue: 0.3),
