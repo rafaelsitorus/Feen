@@ -28,7 +28,8 @@ struct ContentView: View {
             TabView(selection: $selectedTab) {
                 NavigationStack { HomeScreen() }.tag(0)
                 NavigationStack { NewsScreen() }.tag(1)
-                NavigationStack { CameraScreen() }.tag(2)
+                NavigationStack { AddExpenseView(expenseController: expenseController,
+                                                 categoryController: categoryController) }.tag(2)
                 NavigationStack { DictionaryScreen(dicts: dictsData) }.tag(3)
                 NavigationStack { SettingsView() }.tag(4)
             }
