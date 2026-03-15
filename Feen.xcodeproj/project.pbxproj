@@ -10,9 +10,22 @@
 		26CB38A72F60048E007A51BA /* Feen.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Feen.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		653B10DC2F6697DC0011A468 /* Exceptions for "Feen" folder in "Feen" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			platformFiltersByRelativePath = {
+				Components/dicts_terms.json = (ios, macos, xros, );
+			};
+			target = 26CB38A62F60048E007A51BA /* Feen */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		26CB38A92F60048E007A51BA /* Feen */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				653B10DC2F6697DC0011A468 /* Exceptions for "Feen" folder in "Feen" target */,
+			);
 			path = Feen;
 			sourceTree = "<group>";
 		};

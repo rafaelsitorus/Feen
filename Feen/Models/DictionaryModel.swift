@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct Dictionaries: Identifiable {
+struct Dictionaries: Identifiable, Codable {
     let id = UUID()
     let title: String
-    let description: String
+    let definition: String
 }

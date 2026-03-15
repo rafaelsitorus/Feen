@@ -16,7 +16,7 @@ struct DictDetailScreen: View {
                 
                 Divider()
                 
-                Text(dict.description)
+                Text(dict.definition)
                     .font(.body)
                     .foregroundStyle(.black)
                     
@@ -31,5 +31,5 @@ struct DictDetailScreen: View {
 }
 
 #Preview {
-    DictDetailScreen(dict: Dictionaries.init(title: "Test", description: "Test"))
+    DictDetailScreen(dict: Dictionaries.init(title: "Test", definition: "Test"))
 }
