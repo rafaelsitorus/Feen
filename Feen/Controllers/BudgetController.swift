@@ -6,38 +6,52 @@
 //
 
 import Foundation
-import SwiftData
+import Combine
 
-class BudgetController {
-    private var context: ModelContext
+class BudgetController: ObservableObject {
     
-    init(context: ModelContext) {
-        self.context = context
+    static let shared = BudgetController()
+    
+    private let earnedKey = "budget_earned"
+    private let spentKey = "budget_spent"
+    
+    @Published var earned: Int = 0 {
+        didSet { LocalStorageManager.shared.save(earned, forKey: earnedKey) }
     }
     
-    func fetchBudget() -> BudgetModel? {
-        let request = FetchDescriptor<BudgetModel>()
-        
-        do {
-            let budget = try context.fetch(request).first
-            print("Fetch budget successful!")
-            return budget
-            
-        } catch {
-            print("Error fetching budget: \(error)")
-            return nil
-        }
+    @Published var spent: Int = 0 {
+        didSet { LocalStorageManager.shared.save(spent, forKey: spentKey) }
     }
     
+    init() {
+        // Load saved budget or initialize to 0
+        earned = LocalStorageManager.shared.load(Int.self, forKey: earnedKey) ?? 0
+        spent = LocalStorageManager.shared.load(Int.self, forKey: spentKey) ?? 0
+    }
+    
+    // MARK: - Budget Updates
+    
+    func addIncome(_ amount: Int) {
+        earned += amount
+    }
+    
+    func addExpense(_ amount: Int) {
+        spent += amount
+    }
+    
+    func resetBudget() {
+        earned = 0
+        spent = 0
+    }
+    
+    // Convenience: fetch full budget as a model
+    func fetchBudget() -> BudgetModel {
+        return BudgetModel(earned: earned, spent: spent)
+    }
+    
+    // Convenience: set budget manually
     func saveBudget(earned: Int, spent: Int) {
-        let savedBudget = BudgetModel(earned: earned, spent: spent)
-        context.insert(savedBudget)
-        
-        do {
-            try context.save()
-            print("New budget saved!")
-        } catch {
-            print("Error saving budget: \(error)")
-        }
+        self.earned = earned
+        self.spent = spent
     }
 }

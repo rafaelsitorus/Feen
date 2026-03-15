@@ -12,6 +12,7 @@ struct FeenApp: App {
     @StateObject var expenseController = ExpenseController()
     @StateObject var categoryController = CategoryController()
     @StateObject var settingsController = SettingsController()
+    @StateObject var budgetController = BudgetController()
 
     var body: some Scene {
         WindowGroup {
@@ -19,6 +20,7 @@ struct FeenApp: App {
                 .environmentObject(expenseController)
                 .environmentObject(categoryController)
                 .environmentObject(settingsController)
+                .environmentObject(budgetController)
                 .preferredColorScheme(.light)
         }
     }
