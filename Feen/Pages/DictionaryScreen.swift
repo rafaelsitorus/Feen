@@ -172,7 +172,7 @@ struct DictionaryScreen: View {
                                 }
                         }
                     }
-                    .padding(EdgeInsets(top: 0, leading: 0, bottom: 56, trailing: 12))
+                    .padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 20))
                     .transition(.move(edge: .trailing).combined(with: .opacity))
                     
                 }
