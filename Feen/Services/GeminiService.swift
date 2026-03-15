@@ -15,34 +15,43 @@ final class GeminiService {
     private init() {}
 
     private let session = URLSession.shared
-    private let maxRetries = 3
+
+    /// Models to try in order — each has its own per-project rate limit.
+    private let models = [
+        "gemini-2.5-flash",
+        "gemini-2.0-flash",
+        "gemini-1.5-flash"
+    ]
 
     // MARK: - Retry Helper
 
-    /// Executes a request, retrying with the next API key on 429 rate-limit errors.
-    private func performWithRetry(buildRequest: (String) throws -> URLRequest) async throws -> (Data, HTTPURLResponse) {
+    /// Executes a request, rotating through API keys AND fallback models on 429 errors.
+    private func performWithRetry(buildRequest: (String, String) throws -> URLRequest) async throws -> (Data, HTTPURLResponse) {
         var lastError: Error = GeminiError.noAPIKeys
-        for _ in 0..<maxRetries {
-            let apiKey = try GeminiKeyRotator.shared.nextKey()
-            let request = try buildRequest(apiKey)
+        let keyCount = GeminiKeyRotator.shared.keyCount
 
-            let (data, response) = try await session.data(for: request)
-            guard let http = response as? HTTPURLResponse else {
-                throw GeminiError.invalidResponse
+        for model in models {
+            for _ in 0..<max(keyCount, 1) {
+                let apiKey = try GeminiKeyRotator.shared.nextKey()
+                let request = try buildRequest(apiKey, model)
+
+                let (data, response) = try await session.data(for: request)
+                guard let http = response as? HTTPURLResponse else {
+                    throw GeminiError.invalidResponse
+                }
+
+                if http.statusCode == 429 {
+                    lastError = GeminiError.apiError("All API keys and models are rate-limited. Please try again later.")
+                    continue
+                }
+
+                guard http.statusCode == 200 else {
+                    let message = String(data: data, encoding: .utf8) ?? "Unknown error"
+                    throw GeminiError.apiError("Gemini API returned \(http.statusCode): \(message)")
+                }
+
+                return (data, http)
             }
-
-            if http.statusCode == 429 {
-                let msg = String(data: data, encoding: .utf8) ?? "Rate limited"
-                lastError = GeminiError.apiError("Rate limited: \(msg)")
-                continue
-            }
-
-            guard http.statusCode == 200 else {
-                let message = String(data: data, encoding: .utf8) ?? "Unknown error"
-                throw GeminiError.apiError("Gemini API returned \(http.statusCode): \(message)")
-            }
-
-            return (data, http)
         }
         throw lastError
     }
@@ -113,8 +122,8 @@ final class GeminiService {
             ]
         ]
 
-        let (data, _) = try await performWithRetry { apiKey in
-            let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=\(apiKey)")!
+        let (data, _) = try await performWithRetry { apiKey, model in
+            let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(apiKey)")!
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -204,8 +213,8 @@ final class GeminiService {
             ]
         ]
 
-        let (data, _) = try await performWithRetry { apiKey in
-            let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=\(apiKey)")!
+        let (data, _) = try await performWithRetry { apiKey, model in
+            let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(apiKey)")!
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -264,8 +273,8 @@ final class GeminiService {
             ]
         ]
 
-        let (data, _) = try await performWithRetry { apiKey in
-            let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=\(apiKey)")!
+        let (data, _) = try await performWithRetry { apiKey, model in
+            let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(apiKey)")!
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -318,8 +327,8 @@ final class GeminiService {
             "contents": [["parts": [["text": prompt]]]]
         ]
 
-        let (data, _) = try await performWithRetry { apiKey in
-            let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=\(apiKey)")!
+        let (data, _) = try await performWithRetry { apiKey, model in
+            let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(apiKey)")!
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
