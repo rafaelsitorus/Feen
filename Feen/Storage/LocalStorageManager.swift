@@ -12,7 +12,24 @@ class LocalStorageManager {
 
     private let expensesKey = "saved_expenses"
     private let categoriesKey = "saved_categories"
+    
+    private init() {}
 
+    func save<T: Codable>(_ value: T, forKey key: String) {
+        if let data = try? JSONEncoder().encode(value) {
+            UserDefaults.standard.set(data, forKey: key)
+        }
+    }
+
+    func load<T: Codable>(_ type: T.Type, forKey key: String) -> T? {
+        guard let data = UserDefaults.standard.data(forKey: key) else { return nil }
+        return try? JSONDecoder().decode(type, from: data)
+    }
+
+    func remove(_ key: String) {
+        UserDefaults.standard.removeObject(forKey: key)
+    }
+    
     // MARK: - Expenses
     func saveExpenses(_ expenses: [Expense]) {
         if let data = try? JSONEncoder().encode(expenses) {

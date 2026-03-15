@@ -26,9 +26,7 @@ struct SettingsView: View {
                         )
 
                         profileSection
-                        preferencesSection
-                        aboutSection
-                        accountSection
+                        preferencesAccountSection
 
                         Spacer().frame(height: 100)
                     }
@@ -88,64 +86,21 @@ struct SettingsView: View {
         }
     }
 
-    private var preferencesSection: some View {
-        SettingsSectionCard(title: "Preferences") {
-            SettingsRow(
-                icon: "dollarsign.circle",
-                iconColor: Color(red: 0.9, green: 0.6, blue: 0.1),
-                title: "Currency",
-                trailingText: controller.settings.selectedCurrency,
-                showChevron: true
-            )
-            Divider().padding(.leading, 68)
+    private var preferencesAccountSection: some View {
+        SettingsSectionCard(title: "Preferences Account") {
             SettingsToggleRow(
                 icon: "bell",
                 iconColor: Color(red: 0.9, green: 0.4, blue: 0.3),
                 title: "Notifications",
                 subtitle: "Daily spending reminders",
                 isOn: Binding(
-                    get: { controller.settings.notificationsEnabled },
+                    get: { controller.notificationsEnabled},
                     set: { _ in controller.toggleNotifications() }
                 )
             )
-        }
-    }
-
-    private var aboutSection: some View {
-        SettingsSectionCard(title: "About") {
-            SettingsRow(
-                icon: "star",
-                iconColor: Color(red: 1.0, green: 0.75, blue: 0.0),
-                title: "Rate the App",
-                showChevron: true
-            )
+            
             Divider().padding(.leading, 68)
-            SettingsRow(
-                icon: "lock.shield",
-                iconColor: AppTheme.teal,
-                title: "Privacy Policy",
-                showChevron: true
-            )
-            Divider().padding(.leading, 68)
-            SettingsRow(
-                icon: "doc.text",
-                iconColor: AppTheme.textSecondary,
-                title: "Terms of Service",
-                showChevron: true
-            )
-            Divider().padding(.leading, 68)
-            SettingsRow(
-                icon: "info.circle",
-                iconColor: Color(red: 0.3, green: 0.5, blue: 0.9),
-                title: "App Version",
-                trailingText: "\(controller.settings.appVersion) (\(controller.settings.buildNumber))",
-                showChevron: false
-            )
-        }
-    }
-
-    private var accountSection: some View {
-        SettingsSectionCard(title: "Account") {
+            
             SettingsRow(
                 icon: "trash",
                 iconColor: Color(red: 0.9, green: 0.2, blue: 0.2),

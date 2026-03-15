@@ -13,6 +13,7 @@ struct ContentView: View {
     var body: some View {
         // Routing onboarding vs main app
         if !hasCompletedOnboarding || !settingsController.profile.isComplete {
+            
             OnboardingContainerView { completedProfile in
                 settingsController.profile = completedProfile
                 hasCompletedOnboarding = true

@@ -6,21 +6,16 @@
 //
 
 import Foundation
-import SwiftData
 
-@Model
-class HistoryModel {
-    var date: String
-    var category: String
-    var desc: String
-    var expense: Int
-    var isEarned: Bool
+struct HistoryModel: Identifiable, Codable {
     
-    init(date: String, category: String, description: String, expense: Int, isEarned: Bool) {
-        self.date = date
-        self.category = category
-        self.desc = description
-        self.expense = expense
-        self.isEarned = isEarned
+    var id: UUID = UUID()
+    var amount: Int
+    var date: Date
+    var category: Category
+    var description: String?
+
+    var isIncome: Bool {
+        category.type == .income
     }
 }
