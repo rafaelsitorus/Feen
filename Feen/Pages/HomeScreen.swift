@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-// TODO: Add data and create HistoryDetailScreen (*View All clicked)
 struct HomeScreen: View {
     @EnvironmentObject var settingController: SettingsController
+    @EnvironmentObject var budgetController: BudgetController
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -20,8 +20,8 @@ struct HomeScreen: View {
             BudgetSummaryComponent(
                 todayDate: Date.now.formatted(
                     .dateTime.weekday(.wide).day().month(.wide).year()),
-                earned: 999999999999,
-                spent: 99
+                earned: budgetController.earned,
+                spent: budgetController.spent
             )
             
             QuoteComponent(quoteMessage: "Lorem ipsum dolor sit amet consectetur adipiscing elit.")
