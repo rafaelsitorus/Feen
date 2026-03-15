@@ -8,35 +8,28 @@ struct SettingsView: View {
     @State private var showDeleteAlert = false
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                AppTheme.background.ignoresSafeArea()
-                
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
-                        ProfileCardView(
-                            avatarInitial: controller.avatarInitial(),
-                            displayName: controller.displayName,
-                            displaySourceOfIncome: controller.displaySourceOfIncome,
-                            formattedIncome: controller.formattedIncome(),
-                            onEditTap: {
-                                editController.load(from: controller.profile)
-                                showEditProfile = true
-                            }
-                        )
-                        
-                        profileSection
-                        preferencesAccountSection
-                        
-                        Spacer()
-                    }
-                    .padding(.top, 12)
-                    .padding(.bottom, 60)
+        VStack(spacing: 24) {
+            Text("Settings")
+                .font(.headline.bold())
+            
+            ProfileCardView(
+                avatarInitial: controller.avatarInitial(),
+                displayName: controller.displayName,
+                displaySourceOfIncome: controller.displaySourceOfIncome,
+                formattedIncome: controller.formattedIncome(),
+                onEditTap: {
+                    editController.load(from: controller.profile)
+                    showEditProfile = true
                 }
-            }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.large)
+            )
+            .frame(height: 160)
+            
+            profileSection
+            accountSection
+            
+            Spacer()
         }
+        .padding(.top, 16)
         .sheet(isPresented: $showEditProfile) {
             EditProfileView(
                 controller: editController,
@@ -58,7 +51,6 @@ struct SettingsView: View {
     }
     
     // MARK: - Sections
-    
     private var profileSection: some View {
         SettingsSectionCard(title: "Profile") {
             SettingsRow(
@@ -87,22 +79,8 @@ struct SettingsView: View {
         }
     }
     
-    private var preferencesAccountSection: some View {
-        SettingsSectionCard(title: "Preferences Account") {
-            
-            SettingsToggleRow(
-                icon: "bell",
-                iconColor: Color(red: 0.9, green: 0.4, blue: 0.3),
-                title: "Notifications",
-                subtitle: "Daily spending reminders",
-                isOn: Binding(
-                    get: { controller.notificationsEnabled},
-                    set: { _ in controller.toggleNotifications() }
-                )
-            )
-            
-            Divider().padding(.leading, 68)
-            
+    private var accountSection: some View {
+        SettingsSectionCard(title: "Account") {
             SettingsRow(
                 icon: "trash",
                 iconColor: Color(red: 0.9, green: 0.2, blue: 0.2),

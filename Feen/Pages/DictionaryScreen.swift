@@ -31,10 +31,10 @@ struct DictionaryScreen: View {
     }
     
     var body: some View {
-        
         ScrollViewReader { proxy in
-            
-            VStack(spacing: 0) {
+            VStack(spacing: 4) {
+                Text("Financial Dictionary")
+                    .font(.headline.bold())
                 
                 // MARK: - Search Bar Area
                 HStack {
