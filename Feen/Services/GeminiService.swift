@@ -217,5 +217,150 @@ final class GeminiService {
         let analysis = try JSONDecoder().decode(InvoiceAnalysis.self, from: jsonData)
         return analysis
     }
+    /// Scan a receipt image and extract amount, description, and suggested category.
+    func scanReceipt(image: UIImage) async throws -> ReceiptScanResult {
+        guard let jpegData = image.jpegData(compressionQuality: 0.8) else {
+            throw GeminiError.invalidResponse
+        }
+        let base64Image = jpegData.base64EncodedString()
+        let apiKey = try GeminiKeyRotator.shared.nextKey()
+        let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=\(apiKey)")!
+
+        let prompt = """
+        You are a receipt scanner. Analyze the attached receipt image and extract the data.
+
+        RULES:
+        - Always extract the total amount as an integer (no decimals). If the currency uses decimals, round to nearest whole number.
+        - If the receipt has detailed line items (item names, quantities, prices), combine them into a human-readable description string like "2x Nasi Goreng @25000, 1x Es Teh @5000".
+        - If the receipt only shows a total amount without clear item details, set description to null.
+        - Suggest a category from this list ONLY: Food, Transport, Shopping, Entertainment, Health, Bill. If unsure, set suggestedCategory to null.
+        - If the receipt has enough context to determine a category (e.g. restaurant = Food, pharmacy = Health), provide it.
+
+        Respond ONLY with valid JSON (no markdown fences):
+        {
+          "totalAmount": integer,
+          "description": "string or null",
+          "suggestedCategory": "string or null"
+        }
+        """
+
+        let body: [String: Any] = [
+            "contents": [
+                [
+                    "parts": [
+                        ["text": prompt],
+                        [
+                            "inline_data": [
+                                "mime_type": "image/jpeg",
+                                "data": base64Image
+                            ]
+                        ]
+                    ]
+                ]
+            ],
+            "generationConfig": [
+                "responseMimeType": "application/json",
+            ]
+        ]
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            let message = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw GeminiError.apiError("Gemini API returned error: \(message)")
+        }
+
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        guard
+            let candidates = json?["candidates"] as? [[String: Any]],
+            let content = candidates.first?["content"] as? [String: Any],
+            let parts = content["parts"] as? [[String: Any]],
+            let text = parts.first?["text"] as? String
+        else {
+            throw GeminiError.invalidResponse
+        }
+
+        let cleaned = text
+            .replacingOccurrences(of: "```json", with: "")
+            .replacingOccurrences(of: "```", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard let jsonData = cleaned.data(using: .utf8) else {
+            throw GeminiError.invalidResponse
+        }
+
+        let result = try JSONDecoder().decode(ReceiptScanResult.self, from: jsonData)
+        return result
+    }
     #endif
+
+    /// Generate a micro-summary of an expense relative to the user's financial state.
+    func summarizeExpense(
+        amount: Int,
+        category: String,
+        description: String,
+        monthlyIncome: Double,
+        totalSpent: Int
+    ) async throws -> String {
+        let apiKey = try GeminiKeyRotator.shared.nextKey()
+        let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=\(apiKey)")!
+
+        let remaining = Int(monthlyIncome) - totalSpent
+        let percentOfIncome = monthlyIncome > 0 ? (Double(amount) / monthlyIncome * 100) : 0
+
+        let prompt = """
+        You are a friendly financial advisor for a Gen Z user. Give a brief, casual micro-summary (3-5 sentences max) about this expense.
+
+        Expense details:
+        - Amount: Rp \(amount)
+        - Category: \(category)
+        - Description: \(description.isEmpty ? "No description" : description)
+
+        User's financial context:
+        - Monthly income: Rp \(Int(monthlyIncome))
+        - Total spent this period: Rp \(totalSpent)
+        - Remaining budget: Rp \(remaining)
+        - This expense is \(String(format: "%.1f", percentOfIncome))% of monthly income
+
+        RULES:
+        - Be concise, casual, supportive but honest
+        - Mention how this expense fits into their overall budget
+        - If spending seems high, gently warn. If reasonable, reassure.
+        - No emojis, no markdown, plain text only
+        - Respond with ONLY the summary text, nothing else
+        """
+
+        let body: [String: Any] = [
+            "contents": [["parts": [["text": prompt]]]]
+        ]
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            let message = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw GeminiError.apiError("Gemini API returned error: \(message)")
+        }
+
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        guard
+            let candidates = json?["candidates"] as? [[String: Any]],
+            let content = candidates.first?["content"] as? [String: Any],
+            let parts = content["parts"] as? [[String: Any]],
+            let text = parts.first?["text"] as? String
+        else {
+            throw GeminiError.invalidResponse
+        }
+
+        return text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 }

@@ -9,6 +9,9 @@ struct AddExpenseView: View {
     
     @ObservedObject var expenseController: ExpenseController
     @ObservedObject var categoryController: CategoryController
+    @EnvironmentObject var historyController: HistoryController
+    @EnvironmentObject var budgetController: BudgetController
+    @EnvironmentObject var settingsController: SettingsController
     @Environment(\.dismiss) var dismiss
 
     // State
@@ -23,7 +26,6 @@ struct AddExpenseView: View {
 
     // Numpad & keyboard control
     @State private var isAmountFocused: Bool = false
-//    @FocusState private var isDescriptionFocused: Bool
     @FocusState private var focusedField: FocusField?
 
     // Camera
@@ -31,6 +33,15 @@ struct AddExpenseView: View {
     @State private var showCamera = false
     @State private var showImagePicker = false
     @State private var capturedImage: UIImage? = nil
+
+    // Receipt scanning
+    @State private var isScanning = false
+
+    // Summary after save
+    @State private var showSummary = false
+    @State private var savedAmount: Int = 0
+    @State private var savedCategory: Category?
+    @State private var savedDescription: String = ""
 
     var amountValue: Int { Int(amountString) ?? 0 }
 
@@ -229,6 +240,23 @@ struct AddExpenseView: View {
                         CameraPickerView(image: $capturedImage, sourceType: .photoLibrary)
                     }
 
+                    // MARK: Scanning Indicator
+                    if isScanning {
+                        HStack(spacing: 10) {
+                            ProgressView()
+                            Text("Scanning receipt...")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(.systemGray6))
+                        )
+                        .padding(.horizontal)
+                    }
+
                     // MARK: Submit
                     Button(action: submitExpense) {
                         Text("Save")
@@ -236,10 +264,10 @@ struct AddExpenseView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(amountValue > 0 ? saveGradient : disabledGradient)
+                            .background(amountValue > 0 && !isScanning ? saveGradient : disabledGradient)
                             .cornerRadius(12)
                     }
-                    .disabled(amountValue == 0)
+                    .disabled(amountValue == 0 || isScanning)
                     .padding(.horizontal)
                     .padding(.bottom, 12)
                 }
@@ -270,6 +298,22 @@ struct AddExpenseView: View {
             Text(alertMessage)
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isAmountFocused)
+        .onChange(of: capturedImage) { oldValue, newValue in
+            guard let image = newValue else { return }
+            scanReceiptImage(image)
+        }
+        .sheet(isPresented: $showSummary, onDismiss: resetForm) {
+            if let cat = savedCategory {
+                ExpenseSummaryView(
+                    amount: savedAmount,
+                    category: cat,
+                    expenseDescription: savedDescription,
+                    monthlyIncome: settingsController.profile.monthlyIncome ?? 0,
+                    totalSpent: budgetController.spent,
+                    onDismiss: { showSummary = false }
+                )
+            }
+        }
     }
 
     // MARK: - Helpers
@@ -298,13 +342,73 @@ struct AddExpenseView: View {
             showAlert = true
             return
         }
+
+        // Save to expense controller
         expenseController.addExpense(
             amount: amountValue,
             date: selectedDate,
             category: category,
             description: description
         )
-        dismiss()
+
+        // Save to history controller
+        historyController.addTransaction(
+            amount: amountValue,
+            category: category,
+            description: description.isEmpty ? nil : description,
+            date: selectedDate
+        )
+
+        // Update budget
+        if transactionType == .expense {
+            budgetController.addExpense(amountValue)
+        } else {
+            budgetController.addIncome(amountValue)
+        }
+
+        // Store data for summary page
+        savedAmount = amountValue
+        savedCategory = category
+        savedDescription = description
+
+        // Show summary
+        showSummary = true
+    }
+
+    private func scanReceiptImage(_ image: UIImage) {
+        isScanning = true
+        Task { @MainActor in
+            do {
+                let result = try await GeminiService.shared.scanReceipt(image: image)
+                amountString = "\(result.totalAmount)"
+
+                if let desc = result.description, !desc.isEmpty {
+                    description = desc
+                }
+
+                if let catName = result.suggestedCategory {
+                    let allCategories = categoryController.categories(for: transactionType)
+                    if let match = allCategories.first(where: {
+                        $0.name.lowercased() == catName.lowercased()
+                    }) {
+                        selectedCategory = match
+                    }
+                }
+            } catch {
+                alertMessage = "Failed to scan receipt: \(error.localizedDescription)"
+                showAlert = true
+            }
+            isScanning = false
+        }
+    }
+
+    private func resetForm() {
+        amountString = "0"
+        selectedDate = Date()
+        selectedCategory = nil
+        description = ""
+        capturedImage = nil
+        transactionType = .expense
     }
 
     private func typeColor(_ type: TransactionType) -> LinearGradient {
@@ -372,4 +476,7 @@ struct DatePickerSheet: View {
         expenseController: expenseController,
         categoryController: categoryController
     )
+    .environmentObject(HistoryController())
+    .environmentObject(BudgetController())
+    .environmentObject(SettingsController())
 }
