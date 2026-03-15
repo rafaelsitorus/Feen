@@ -33,6 +33,9 @@ final class GeminiKeyRotator: @unchecked Sendable {
     private var currentIndex = 0
     private let lock = NSLock()
 
+    /// Number of available API keys.
+    var keyCount: Int { apiKeys.count }
+
     private init() {}
 
     /// Returns the next API key in round-robin order.
